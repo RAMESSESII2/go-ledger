@@ -12,6 +12,7 @@ type Client interface {
 	Edit(id int, fname, lname string, debit, credit int64) ([]byte, error)
 	Fetch(id int) ([]byte, error)
 	Delete(id int) error
+	FetchAll() ([]byte, error)
 }
 
 // the CLI command switch
@@ -29,6 +30,7 @@ func NewSwitch(uri string) Switch {
 		"create": s.create,
 		"edit":   s.edit,
 		"fetch":  s.fetch,
+		"ledger": s.fetchAll,
 		"delete": s.delete,
 	}
 	return s
@@ -78,22 +80,22 @@ func (s Switch) create() func(string) error {
 func (s Switch) edit() func(string) error {
 	return func(cmd string) error {
 		editCmd := flag.NewFlagSet(cmd, flag.ExitOnError)
-		var id int = -1
+		var id int
 		editCmd.IntVar(&id, "id", 0, "The ID (int) of the transaction in the ledger to be edited")
 		f, l, d, c := s.ledgerFlags(editCmd)
 
-		if id <= 0 {
-			wrapError("Enter a valid id", nil)
-		}
 		if err := s.checkArguments(2); err != nil {
 			return err
 		}
 		if err := s.parseCommand(editCmd); err != nil {
 			return err
 		}
+		if id <= 0 {
+			return wrapError("Enter a valid id", nil)
+		}
 
 		res, err := s.client.Edit(id, *f, *l, *d, *c)
-		if err != nil {
+		if err != nil || string(res) == "" {
 			return wrapError("Couldn't edit the transaction in the ledger", err)
 		}
 		fmt.Printf("Transaction has been edit successfully in the ledger:\n%s", string(res))
@@ -108,21 +110,42 @@ func (s Switch) fetch() func(string) error {
 		var id int
 		fetchCmd.IntVar(&id, "id", 0, "The ID (int) of the transaction in the ledger to be edited")
 
-		if id <= 0 {
-			wrapError("Enter a valid id", nil)
-		}
 		if err := s.checkArguments(1); err != nil {
 			return err
 		}
 		if err := s.parseCommand(fetchCmd); err != nil {
 			return err
 		}
+		if id <= 0 {
+			return wrapError("Enter a valid id", nil)
+		}
 
 		res, err := s.client.Fetch(id)
-		if err != nil {
+		if err != nil || string(res) == "" {
 			return wrapError("Couldn't fetch the transaction from the ledger", err)
 		}
 		fmt.Printf("Transaction has been fetched successfully from the ledger:\n%s", string(res))
+		return nil
+	}
+}
+
+//the fetch() fetches an existing transaction from the ledger
+func (s Switch) fetchAll() func(string) error {
+	return func(cmd string) error {
+		fetchAllCmd := flag.NewFlagSet(cmd, flag.ExitOnError)
+
+		if err := s.checkArguments(0); err != nil {
+			return err
+		}
+		if err := s.parseCommand(fetchAllCmd); err != nil {
+			return err
+		}
+
+		res, err := s.client.FetchAll()
+		if err != nil {
+			return wrapError("Couldn't fetch the transaction from the ledger", err)
+		}
+		fmt.Printf("Transaction(s) has been fetched successfully from the ledger:\n%s", string(res))
 		return nil
 	}
 }
@@ -134,14 +157,14 @@ func (s Switch) delete() func(string) error {
 		var id int
 		deleteCmd.IntVar(&id, "id", 0, "The ID (int) of the transaction in the ledger to be edited")
 
-		if id <= 0 {
-			wrapError("Enter a valid id", nil)
-		}
 		if err := s.checkArguments(1); err != nil {
 			return err
 		}
 		if err := s.parseCommand(deleteCmd); err != nil {
 			return err
+		}
+		if id <= 0 {
+			return wrapError("Enter a valid id", nil)
 		}
 
 		err := s.client.Delete(id)

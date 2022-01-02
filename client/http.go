@@ -47,9 +47,15 @@ func (c HTTPClient) Edit(id int, fname, lname string, debit, credit int64) ([]by
 	return c.apiCall(http.MethodPatch, "/ledger/"+fmt.Sprint(id), &requestBody, http.StatusOK)
 }
 
-//fetch() call
+//Fetch() call
 func (c HTTPClient) Fetch(id int) ([]byte, error) {
 	return c.apiCall(http.MethodGet, "/ledger/"+fmt.Sprint(id), nil, http.StatusOK)
+
+}
+
+//FetchAll() call
+func (c HTTPClient) FetchAll() ([]byte, error) {
+	return c.apiCall(http.MethodGet, "/ledger", nil, http.StatusOK)
 
 }
 
@@ -83,7 +89,7 @@ func (c HTTPClient) apiCall(method, path string, body interface{}, resCode int) 
 	}
 	if res.StatusCode != resCode {
 		if len(resBody) > 0 {
-			fmt.Printf("got this response body: \n%s\n", resBody)
+			fmt.Printf("Here's the required transaction(s): \n%s\n", resBody)
 		}
 		return []byte{}, fmt.Errorf("exptected respose code: %d, got: %d", resCode, res.StatusCode)
 	}
