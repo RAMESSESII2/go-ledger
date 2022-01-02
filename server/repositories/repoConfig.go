@@ -1,8 +1,9 @@
-package server
+package repositories
 
 import (
 	"fmt"
 
+	"github.com/RAMESSESII2/go-ledger/server/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -19,5 +20,5 @@ func InitialMigration() {
 		panic("Cannot connect to the database")
 	}
 	fmt.Println("Connected to Databse")
-	DB.AutoMigrate(&Transaction{})
+	DB.AutoMigrate(&models.Transaction{})
 }

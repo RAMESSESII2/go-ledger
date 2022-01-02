@@ -1,25 +1,32 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/RAMESSESII2/go-ledger/server/repositories"
+	"github.com/RAMESSESII2/go-ledger/server/services"
 	"github.com/gorilla/mux"
 )
 
-func initializeRouter() {
+func InitializeRouter() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/ledger", GetLedger).Methods("GET")
-	r.HandleFunc("/ledger/{id}", GetTransaction).Methods("GET")
-	r.HandleFunc("/ledger", NewTransaction).Methods("POST")
-	r.HandleFunc("/ledger/{id}", UpdateTransaction).Methods("PUT")
-	r.HandleFunc("/ledger/{id}", DeleteTransaction).Methods("DELETE")
+	r.HandleFunc("/ledger", services.GetLedger).Methods("GET")
+	r.HandleFunc("/ledger/{id}", services.GetTransaction).Methods("GET")
+	r.HandleFunc("/ledger", services.NewTransaction).Methods("POST")
+	r.HandleFunc("/ledger/{id}", services.UpdateTransaction).Methods("PATCH")
+	r.HandleFunc("/ledger/{id}", services.DeleteTransaction).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":9000", r))
+	err := http.ListenAndServe(":9000", r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Server started on port ")
 }
 
-func startServer() {
-	InitialMigration()
-	initializeRouter()
+func StartServer() {
+	repositories.InitialMigration()
+	InitializeRouter()
 }
