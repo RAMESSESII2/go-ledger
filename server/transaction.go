@@ -1,4 +1,4 @@
-package main
+package server
 
 import "gorm.io/gorm"
 

@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"log"
@@ -19,7 +19,7 @@ func initializeRouter() {
 	log.Fatal(http.ListenAndServe(":9000", r))
 }
 
-func main() {
+func startServer() {
 	InitialMigration()
 	initializeRouter()
 }
