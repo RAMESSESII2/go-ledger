@@ -22,12 +22,18 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var trasaction models.Transaction
 	repositories.DB.First(&trasaction, params["id"])
+	if trasaction.ID == 0 {
+		return
+	}
 	json.NewEncoder(w).Encode(trasaction)
 }
 func NewTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var trasaction models.Transaction
 	json.NewDecoder(r.Body).Decode(&trasaction)
+	if trasaction.FirstName == "" {
+		return
+	}
 	repositories.DB.Create(&trasaction)
 	json.NewEncoder(w).Encode(trasaction)
 }
@@ -36,9 +42,20 @@ func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var trasaction models.Transaction
 	repositories.DB.First(&trasaction, params["id"])
-	json.NewDecoder(r.Body).Decode(&trasaction)
-	repositories.DB.Save(&trasaction)
-	json.NewEncoder(w).Encode(trasaction)
+	if trasaction.ID <= 0 {
+		return
+	}
+	var newTransaction models.Transaction
+	json.NewDecoder(r.Body).Decode(&newTransaction)
+	newTransaction.ID = trasaction.ID
+	if newTransaction.FirstName == "" {
+		newTransaction.FirstName = trasaction.FirstName
+	}
+	if newTransaction.LastName == "" {
+		newTransaction.LastName = trasaction.LastName
+	}
+	repositories.DB.Save(&newTransaction)
+	json.NewEncoder(w).Encode(newTransaction)
 }
 func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

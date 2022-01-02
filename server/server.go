@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -10,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func InitializeRouter() {
+func InitializeRouter(address string) {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ledger", services.GetLedger).Methods("GET")
@@ -19,14 +18,13 @@ func InitializeRouter() {
 	r.HandleFunc("/ledger/{id}", services.UpdateTransaction).Methods("PATCH")
 	r.HandleFunc("/ledger/{id}", services.DeleteTransaction).Methods("DELETE")
 
-	err := http.ListenAndServe(":9000", r)
+	err := http.ListenAndServe(address, r)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Server started on port ")
 }
 
-func StartServer() {
-	repositories.InitialMigration()
-	InitializeRouter()
+func StartServer(DNS string, address string) {
+	repositories.InitialMigration(DNS)
+	InitializeRouter(address)
 }
