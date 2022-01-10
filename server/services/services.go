@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/RAMESSESII2/go-ledger/server/models"
@@ -15,6 +16,10 @@ func GetLedger(w http.ResponseWriter, r *http.Request) {
 	var ledger []models.Transaction
 	repositories.DB.Find(&ledger)
 	json.NewEncoder(w).Encode(ledger)
+}
+
+func SayHello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hi!")
 }
 
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
