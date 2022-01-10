@@ -9,16 +9,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var R *mux.Router
+
 func InitializeRouter(address string) {
-	r := mux.NewRouter()
+	R = mux.NewRouter()
 
-	r.HandleFunc("/ledger", services.GetLedger).Methods("GET")
-	r.HandleFunc("/ledger/{id}", services.GetTransaction).Methods("GET")
-	r.HandleFunc("/ledger", services.NewTransaction).Methods("POST")
-	r.HandleFunc("/ledger/{id}", services.UpdateTransaction).Methods("PATCH")
-	r.HandleFunc("/ledger/{id}", services.DeleteTransaction).Methods("DELETE")
+	R.HandleFunc("/hello", services.SayHello).Methods("GET")
+	R.HandleFunc("/ledger", services.GetLedger).Methods("GET")
+	R.HandleFunc("/ledger/{id}", services.GetTransaction).Methods("GET")
+	R.HandleFunc("/ledger", services.NewTransaction).Methods("POST")
+	R.HandleFunc("/ledger/{id}", services.UpdateTransaction).Methods("PATCH")
+	R.HandleFunc("/ledger/{id}", services.DeleteTransaction).Methods("DELETE")
 
-	err := http.ListenAndServe(address, r)
+	err := http.ListenAndServe(address, R)
 	if err != nil {
 		log.Fatal(err)
 	}
