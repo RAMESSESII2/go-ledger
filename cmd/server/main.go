@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/RAMESSESII2/go-ledger/server"
 )
@@ -16,6 +17,8 @@ var (
 
 func main() {
 	flag.Parse()
-	dbPath := (*dbUserFlag) + ":" + (*dbPasswordFlag) + "@tcp(127.0.0.1:3306)/ledgerDB?charset=utf8mb4&parseTime=True&loc=Local"
-	server.StartServer(dbPath, ":"+*addressFlag)
+	fmt.Print("Inside server's main")
+	// dbPathD := (*dbUserFlag) + ":" + (*dbPasswordFlag) + "@tcp(127.0.0.1:3306)/ledgerDB?charset=utf8mb4&parseTime=True&loc=Local"
+	dbPathD := "root:secret@tcp(db:3306)/ledger?charset=utf8&parseTime=True&loc=Local"
+	server.StartServer(dbPathD, ":"+*addressFlag)
 }
